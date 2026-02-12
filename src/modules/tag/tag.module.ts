@@ -1,0 +1,14 @@
+import { Module } from '@nestjs/common';
+import { TagService } from './tag.service';
+import { TagController } from './tag.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Tag } from './entities/tag.entity';
+import { RedisModule } from 'src/shared/redis/redis.module';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Tag], 'postgresql'), RedisModule],
+  controllers: [TagController],
+  providers: [TagService],
+  exports: [TagService],
+})
+export class TagModule {}
