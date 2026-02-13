@@ -88,17 +88,24 @@ export class RitualController {
   @ApiResponse({ status: 200, description: 'Ritual updated successfully' })
   async update(
     @Param('id') id: string,
-    @Body() body: UpdateRitualWithRelationsDto,
+    @Body() body: any,
   ) {
-    const { ritual, relations } = body;
+    // Support both formats:
+    // 1. Nested: { ritual: {...}, relations: {...} } (from Swagger/complex forms)
+    // 2. Flat: { name, dateLunar, ... } (from simple FE forms)
+    const isNestedFormat = body.ritual !== undefined;
+
+    const ritualData = isNestedFormat ? body.ritual : body;
+    const relations = isNestedFormat ? body.relations : undefined;
+
     if (relations && Object.keys(relations).length > 0) {
       return await this.ritualService.updateWithRelations(
         id,
-        ritual,
+        ritualData,
         relations,
       );
     } else {
-      return await this.ritualService.update(id, ritual);
+      return await this.ritualService.update(id, ritualData);
     }
   }
 
