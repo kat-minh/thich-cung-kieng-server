@@ -36,12 +36,15 @@ export class RitualController {
     // 1. Nested: { ritual: {...}, relations: {...} } (from Swagger/complex forms)
     // 2. Flat: { name, dateLunar, ... } (from simple FE forms)
     const isNestedFormat = body.ritual !== undefined;
-    
+
     const ritualData = isNestedFormat ? body.ritual : body;
     const relations = isNestedFormat ? body.relations : undefined;
 
     if (relations && Object.keys(relations).length > 0) {
-      return await this.ritualService.createWithRelations(ritualData, relations);
+      return await this.ritualService.createWithRelations(
+        ritualData,
+        relations,
+      );
     } else {
       return await this.ritualService.create(ritualData);
     }
