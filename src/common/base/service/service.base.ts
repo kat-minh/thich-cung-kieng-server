@@ -152,10 +152,10 @@ export abstract class BaseService<
                   'ID and update data are required',
                 );
               }
-              
+
               // Validate update input
               await this.validateUpdateInput(updateDto);
-              
+
               const entity = await this.findOne(id);
               if (!entity) return null;
               this.repository.merge(entity, updateDto);
@@ -332,17 +332,25 @@ export abstract class BaseService<
 
   /**
    * Check if a foreign key exists in the database.
-   * @param entityName  The name of the entity to check.
+   * @param entityClass  The entity class to check.
    * @param foreignKeyId  The foreign key ID to check.
    * @returns  True if the foreign key exists, false otherwise.
    */
   protected async checkForeignKeyExist(
-    entityName: string,
+    entityClass: any,
     foreignKeyId: string,
   ): Promise<boolean> {
-    if (!entityName || !foreignKeyId) return false;
-    const repository = this.repository.manager.getRepository(entityName);
-    const count = await repository.count({ where: { id: foreignKeyId } });
-    return count > 0;
+    if (!entityClass || !foreignKeyId) return false;
+    try {
+      const repository = this.repository.manager.getRepository(entityClass);
+      if (!repository) return false;
+      const count = await repository.count({ where: { id: foreignKeyId } });
+      return count > 0;
+    } catch (error) {
+      this.logger.error(
+        `Error checking foreign key existence for ${entityClass?.name}: ${error.message}`,
+      );
+      return false;
+    }
   }
 }

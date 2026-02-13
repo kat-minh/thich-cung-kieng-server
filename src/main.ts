@@ -18,6 +18,7 @@ async function bootstrap() {
     'http://localhost:3000',
     'http://localhost:5000',
     'https://thich-cung-kieng-server.onrender.com', // Server domain for Swagger
+    'https://thich-cung-kieng-server-rusq.onrender.com', // Server domain for Swagger
   ];
 
   app.enableCors({

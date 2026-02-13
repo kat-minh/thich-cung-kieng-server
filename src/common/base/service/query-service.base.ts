@@ -194,7 +194,7 @@ export abstract class QueryServiceBase<T extends AbstractEntity> {
 
   // Utils methods
   protected getEntityName(): string {
-    return this.repository.metadata.name;
+    return this.repository?.metadata?.name || 'Entity';
   }
 
   protected getCacheKey(options: BuildCacheKeyOptions): string {

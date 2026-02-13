@@ -101,7 +101,7 @@ export class RitualService extends BaseService<Ritual> {
     if (!createDto) throw new BadRequestException('Data to create is required');
     if (createDto.ritualCategoryId) {
       const isCategoryExist = await this.checkForeignKeyExist(
-        RitualCategory.name,
+        RitualCategory,
         createDto.ritualCategoryId.toString(),
       );
       if (!isCategoryExist) {
