@@ -31,13 +31,19 @@ export class RitualController {
     status: 201,
     description: 'Ritual with relations created successfully',
   })
-  async createWithRelations(@Body() body: CreateRitualWithRelationsDto) {
-    const { ritual, relations } = body;
+  async createWithRelations(@Body() body: any) {
+    // Support both formats:
+    // 1. Nested: { ritual: {...}, relations: {...} } (from Swagger/complex forms)
+    // 2. Flat: { name, dateLunar, ... } (from simple FE forms)
+    const isNestedFormat = body.ritual !== undefined;
+    
+    const ritualData = isNestedFormat ? body.ritual : body;
+    const relations = isNestedFormat ? body.relations : undefined;
 
     if (relations && Object.keys(relations).length > 0) {
-      return await this.ritualService.createWithRelations(ritual, relations);
+      return await this.ritualService.createWithRelations(ritualData, relations);
     } else {
-      return await this.ritualService.create(ritual);
+      return await this.ritualService.create(ritualData);
     }
   }
 
