@@ -37,7 +37,7 @@ export abstract class QueryServiceBase<T extends AbstractEntity> {
       // Add search condition
       if (search && this.getSearchableFields().length > 0) {
         const searchFields = this.getSearchableFields();
-        
+
         // Use basic case-insensitive search instead of unaccent/similarity functions
         // This avoids the PostgreSQL extension requirement
         const basicConditions = searchFields
@@ -126,7 +126,7 @@ export abstract class QueryServiceBase<T extends AbstractEntity> {
         where: whereCondition,
         relations: relations && relations.length > 0 ? relations : [],
       });
-       if (relations && relations.length > 0 && result) {
+      if (relations && relations.length > 0 && result) {
         this.filterAuditFieldsFromRelations([result], relations);
       }
       return result;
@@ -242,26 +242,48 @@ export abstract class QueryServiceBase<T extends AbstractEntity> {
 
     entities.forEach((entity) => {
       relations.forEach((relation) => {
-        if (
-          entity &&
-          entity[relation] &&
-          typeof entity[relation] === 'object'
-        ) {
-          // Handle both single object and array of objects
-          if (Array.isArray(entity[relation])) {
-            entity[relation].forEach((item: any) => {
-              fieldsToRemove.forEach((field) => {
-                delete item[field];
-              });
-            });
-          } else {
-            fieldsToRemove.forEach((field) => {
-              delete entity[relation][field];
-            });
-          }
-        }
+        // Handle nested relations like 'ritualTags.tag'
+        const parts = relation.split('.');
+        this.filterNestedRelation(entity, parts, fieldsToRemove);
       });
     });
+  }
+
+  private filterNestedRelation(
+    obj: any,
+    parts: string[],
+    fieldsToRemove: string[],
+  ) {
+    if (!obj || parts.length === 0) return;
+
+    const [current, ...remaining] = parts;
+    const value = obj[current];
+
+    if (!value) return;
+
+    // If this is the last part, filter audit fields
+    if (remaining.length === 0) {
+      if (Array.isArray(value)) {
+        value.forEach((item: any) => {
+          fieldsToRemove.forEach((field) => {
+            delete item?.[field];
+          });
+        });
+      } else if (typeof value === 'object') {
+        fieldsToRemove.forEach((field) => {
+          delete value[field];
+        });
+      }
+    } else {
+      // Recursively process nested relations
+      if (Array.isArray(value)) {
+        value.forEach((item: any) => {
+          this.filterNestedRelation(item, remaining, fieldsToRemove);
+        });
+      } else if (typeof value === 'object') {
+        this.filterNestedRelation(value, remaining, fieldsToRemove);
+      }
+    }
   }
 
   // ABSTRACT METHODS - Override in child classes
