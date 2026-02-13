@@ -86,10 +86,7 @@ export class RitualController {
   @ApiOperation({ summary: 'Update a ritual' })
   @ApiBody({ type: UpdateRitualWithRelationsDto })
   @ApiResponse({ status: 200, description: 'Ritual updated successfully' })
-  async update(
-    @Param('id') id: string,
-    @Body() body: any,
-  ) {
+  async update(@Param('id') id: string, @Body() body: any) {
     // Support both formats:
     // 1. Nested: { ritual: {...}, relations: {...} } (from Swagger/complex forms)
     // 2. Flat: { name, dateLunar, ... } (from simple FE forms)
